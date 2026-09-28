@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen blanc IASSC ICGB™ — Lean Six Sigma Green Belt</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --ok: #22c55e;
+    --ko: #ef4444;
+    --define: #a78bfa;
+    --measure: #38bdf8;
+    --analyze: #fbbf24;
+    --improve: #34d399;
+    --control: #f472b6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .container { max-width: 820px; margin: 0 auto; padding: 24px 16px 60px; }
+  header { text-align: center; margin-bottom: 24px; }
+  header h1 { font-size: 1.5rem; margin: 0 0 6px; }
+  header p { color: var(--muted); margin: 0; font-size: 0.95rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .progress-wrap { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+  .progress-bar { height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+  .meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; font-size: 0.9rem; color: var(--muted); }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; color: #0f172a; }
+  .badge.Define { background: var(--define); }
+  .badge.Measure { background: var(--measure); }
+  .badge.Analyze { background: var(--analyze); }
+  .badge.Improve { background: var(--improve); }
+  .badge.Control { background: var(--control); }
+  .question { font-size: 1.1rem; font-weight: 500; margin-bottom: 20px; white-space: pre-line; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: #0f172a; border: 2px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; cursor: pointer; text-align: left; color: var(--text);
+    font-size: 1rem; width: 100%; transition: border-color .15s, background .15s;
+  }
+  .option:hover:not(:disabled) { border-color: var(--accent); }
+  .option:disabled { cursor: default; }
+  .option .letter { font-weight: 700; color: var(--accent); min-width: 22px; }
+  .option.correct { border-color: var(--ok); background: rgba(34,197,94,.12); }
+  .option.wrong { border-color: var(--ko); background: rgba(239,68,68,.12); }
+  .feedback { margin-top: 18px; padding: 14px 16px; border-radius: 10px; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: rgba(34,197,94,.15); border: 1px solid var(--ok); }
+  .feedback.ko { background: rgba(239,68,68,.15); border: 1px solid var(--ko); }
+  .feedback strong { display: block; margin-bottom: 4px; }
+  .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; gap: 12px; flex-wrap: wrap; }
+  .score { font-weight: 600; }
+  button.primary {
+    background: var(--accent); color: #0f172a; border: none; border-radius: 8px;
+    padding: 10px 22px; font-size: 1rem; font-weight: 600; cursor: pointer;
+  }
+  button.primary:hover { filter: brightness(1.1); }
+  button.primary:disabled { opacity: .4; cursor: default; }
+  .hidden { display: none; }
+  .result-big { font-size: 2.4rem; font-weight: 700; text-align: center; margin: 8px 0; }
+  .result-sub { text-align: center; color: var(--muted); margin-bottom: 20px; }
+  .pass { color: var(--ok); } .fail { color: var(--ko); }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.95rem; }
+  th { color: var(--muted); font-weight: 600; }
+  .bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  .bar span { display: block; height: 100%; }
+  .error-item { padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+  .error-item:last-child { border-bottom: none; }
+  .error-item .q { font-weight: 500; margin-bottom: 4px; }
+  .error-item .a { color: var(--muted); }
+  .error-item .a b.good { color: var(--ok); } .error-item .a b.bad { color: var(--ko); }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; }
+  .center { text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Examen blanc IASSC ICGB™ — Lean Six Sigma Green Belt</h1>
+    <p>30 questions · Define 5 · Measure 11 · Analyze 7 · Improve 4 · Control 3 · Seuil de réussite : 77 %</p>
+  </header>
+
+  <div id="quiz" class="card">
+    <div class="progress-wrap"><div id="progress" class="progress-bar"></div></div>
+    <div class="meta">
+      <span id="qnum"></span>
+      <span id="phase" class="badge"></span>
+    </div>
+    <div id="question" class="question"></div>
+    <div id="options" class="options"></div>
+    <div id="feedback" class="feedback"></div>
+    <div class="actions">
+      <span id="score" class="score">Score : 0 / 0</span>
+      <button id="next" class="primary" disabled>Question suivante →</button>
+    </div>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <h2 class="center">Résultat final</h2>
+      <div id="result-big" class="result-big"></div>
+      <div id="result-sub" class="result-sub"></div>
+      <div id="verdict" class="center" style="font-size:1.1rem;font-weight:600;"></div>
+    </div>
+    <div class="card">
+      <h2>Détail par phase DMAIC</h2>
+      <table>
+        <thead><tr><th>Phase</th><th>Score</th><th>%</th></tr></thead>
+        <tbody id="phase-table"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Erreurs et bonnes réponses</h2>
+      <div id="errors"></div>
+    </div>
+    <div class="center">
+      <button id="restart" class="primary">Recommencer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { phase: "Define",
+    q: "Dans un projet de réduction du délai de traitement des factures fournisseurs, l'équipe classe les étapes du processus. Laquelle relève du BNVA (Business Non-Value-Added) ?",
+    o: ["La saisie du montant de la facture dans l'ERP",
+        "L'attente de la facture dans la corbeille du comptable",
+        "Le double contrôle exigé par la réglementation comptable",
+        "La correction d'une erreur de saisie détectée au paiement"],
+    a: 2,
+    e: "Le BNVA n'apporte pas de valeur au client mais est requis par l'entreprise ou la réglementation. L'attente et la reprise sont du NVA pur ; la saisie est VA." },
+
+  { phase: "Measure",
+    q: "Un processus a des limites de spécification LSL = 10 et USL = 20. La moyenne mesurée est 16 et l'écart-type court terme est 1. Quelles sont les valeurs de Cp et Cpk ?",
+    o: ["Cp = 1,33 ; Cpk = 1,67",
+        "Cp = 1,67 ; Cpk = 1,33",
+        "Cp = 1,67 ; Cpk = 2,00",
+        "Cp = 3,33 ; Cpk = 1,33"],
+    a: 1,
+    e: "Cp = (20−10)/(6×1) = 1,67. Cpk = min[(20−16)/3 ; (16−10)/3] = min(1,33 ; 2,00) = 1,33. Cpk tient compte du centrage, Cp non." },
+
+  { phase: "Analyze",
+    q: "Une population a un écart-type σ = 12. On prélève des échantillons de taille n = 36. Quelle est l'erreur-type de la moyenne ?",
+    o: ["12", "6", "0,33", "2"],
+    a: 3,
+    e: "Erreur-type = σ/√n = 12/√36 = 12/6 = 2. Confusion classique : σ décrit les individus, σ/√n décrit la dispersion des moyennes d'échantillons." },
+
+  { phase: "Measure",
+    q: "Un processus en trois étapes a des rendements de première passe (FPY) de 95 %, 90 % et 98 %. Quel est le rendement global RTY (Rolled Throughput Yield) ?",
+    o: ["83,8 %", "94,3 %", "90,0 %", "97,7 %"],
+    a: 0,
+    e: "RTY = produit des FPY = 0,95 × 0,90 × 0,98 = 0,838 soit 83,8 %. La moyenne des FPY (94,3 %) est un piège fréquent." },
+
+  { phase: "Control",
+    q: "Sur une carte X̄-R, un point de moyenne dépasse la limite de contrôle supérieure (LCS) mais reste à l'intérieur de la spécification client. Que doit faire l'opérateur ?",
+    o: ["Ne rien faire, le produit est conforme",
+        "Rechercher et traiter une cause spéciale",
+        "Élargir les limites de contrôle",
+        "Recentrer le processus sur la cible"],
+    a: 1,
+    e: "Les limites de contrôle reflètent la voix du processus, pas celle du client. Un point hors LCS signale une cause spéciale à investiguer, même si la pièce est dans la spécification." },
+
+  { phase: "Define",
+    q: "Lequel de ces énoncés constitue un énoncé du problème (Problem Statement) correctement formulé pour une charte de projet ?",
+    o: ["Le taux de retours clients de la ligne B est passé de 2 % à 5,5 % depuis janvier, soit 120 k€ de coûts",
+        "Les clients sont mécontents de la qualité et il faut réduire les retours rapidement",
+        "L'équipe va analyser les causes des retours et mettre en place un plan d'action",
+        "Le manque de formation des opérateurs génère trop de retours sur la ligne B"],
+    a: 0,
+    e: "Un bon énoncé de problème est factuel et quantifié (quoi, où, quand, ampleur), sans cause supposée ni solution. B est vague, C est un plan, D présume la cause." },
+
+  { phase: "Measure",
+    q: "Une étude Gage R&R donne un %GRR (en % de la variation totale) de 25 %. Comment interpréter ce résultat selon les critères AIAG ?",
+    o: ["Système de mesure acceptable sans réserve",
+        "Système inacceptable, à remplacer immédiatement",
+        "Système marginal, acceptable selon la criticité et le coût",
+        "Résultat non interprétable sans le nombre de catégories distinctes"],
+    a: 2,
+    e: "Critères AIAG : < 10 % acceptable, 10–30 % marginal (conditionnellement acceptable), > 30 % inacceptable. 25 % est donc dans la zone marginale." },
+
+  { phase: "Analyze",
+    q: "Une Green Belt veut savoir si le taux de pièces défectueuses (conforme / non conforme) diffère entre 4 fournisseurs. Quel test est le plus approprié ?",
+    o: ["Test t à deux échantillons",
+        "ANOVA à un facteur",
+        "Test z à deux proportions",
+        "Régression linéaire simple",
+        "Test du chi-deux d'indépendance"],
+    a: 4,
+    e: "Données attributs (compte de défectueux) et plus de deux groupes → chi-deux (tableau de contingence). Le test z à 2 proportions ne compare que deux groupes ; l'ANOVA exige des données continues." },
+
+  { phase: "Measure",
+    q: "Un contrôle sur 1 500 unités révèle 45 défauts. Chaque unité comporte 5 opportunités de défaut. Quel est le DPMO ?",
+    o: ["30 000", "150 000", "3 000", "6 000"],
+    a: 3,
+    e: "DPMO = défauts / (unités × opportunités) × 10⁶ = 45 / (1 500 × 5) × 10⁶ = 45 / 7 500 × 10⁶ = 6 000. Oublier les opportunités donne 30 000." },
+
+  { phase: "Improve",
+    q: "Une régression linéaire simple donne un R² = 0,64. Quelle est l'interprétation correcte ?",
+    o: ["64 % de la variation de Y est expliquée par X",
+        "La corrélation entre X et Y est de 0,64",
+        "64 % des prédictions du modèle sont correctes",
+        "X cause Y dans 64 % des cas observés"],
+    a: 0,
+    e: "R² est le coefficient de détermination : part de la variance de Y expliquée par le modèle. Le coefficient de corrélation serait r = √0,64 = 0,80. La régression n'établit pas la causalité." },
+
+  { phase: "Measure",
+    q: "Un instrument mesure 5 fois un étalon certifié à 10,00 mm et donne : 10,41 – 10,43 – 10,42 – 10,42 – 10,42. Comment qualifier ce système de mesure ?",
+    o: ["Exact et précis",
+        "Exact mais pas précis",
+        "Précis mais pas exact",
+        "Ni exact ni précis"],
+    a: 2,
+    e: "Les valeurs sont très groupées (bonne répétabilité = précision) mais décalées de +0,42 par rapport à la valeur vraie (biais = manque d'exactitude). Un étalonnage corrigera le biais." },
+
+  { phase: "Define",
+    q: "Une entreprise de livraison recueille la voix du client : « Je veux recevoir mon colis rapidement ». Quel énoncé traduit correctement ce besoin en CTQ ?",
+    o: ["Améliorer la satisfaction client sur la livraison",
+        "Réduire le nombre de plaintes liées aux délais",
+        "Le client souhaite une livraison rapide et fiable",
+        "Délai de livraison ≤ 48 h pour 95 % des colis"],
+    a: 3,
+    e: "Un CTQ est une exigence mesurable et spécifique dérivée de la VOC, avec cible et limite. A et C restent qualitatifs ; B est un indicateur de résultat, pas une exigence client." },
+
+  { phase: "Measure",
+    q: "On compte le nombre de rayures sur des panneaux de tôle dont la surface varie d'un lot à l'autre. Quelle carte de contrôle est la plus appropriée ?",
+    o: ["Carte c", "Carte u", "Carte p", "Carte np", "Carte I-MR"],
+    a: 1,
+    e: "Comptage de défauts (pas de défectueux) avec surface d'inspection variable → carte u (défauts par unité). La carte c exige une aire d'opportunité constante ; p et np concernent les défectueux." },
+
+  { phase: "Analyze",
+    q: "Un test d'hypothèse fournit une p-value de 0,03 pour un risque α fixé à 0,05. Quelle est la conclusion correcte ?",
+    o: ["Ne pas rejeter H₀ : la différence n'est pas significative",
+        "Accepter H₀ : les deux populations sont identiques",
+        "Rejeter H₀ : la différence est statistiquement significative",
+        "Le test n'est pas concluant, augmenter la taille d'échantillon"],
+    a: 2,
+    e: "Règle : si p < α, on rejette H₀. 0,03 < 0,05 → rejet. On ne dit jamais « accepter H₀ », seulement « ne pas rejeter »." },
+
+  { phase: "Control",
+    q: "Quel document précise, pour chaque caractéristique clé, la méthode de mesure, la taille d'échantillon, la fréquence et le plan de réaction en cas de dérive ?",
+    o: ["Le plan de contrôle",
+        "L'AMDEC processus",
+        "La cartographie du flux de valeur",
+        "Le tableau de bord de projet"],
+    a: 0,
+    e: "Le plan de contrôle (Control Plan) formalise la surveillance du processus après amélioration : quoi mesurer, comment, à quelle fréquence et que faire en cas d'anomalie." },
+
+  { phase: "Measure",
+    q: "Un processus présente 66 807 DPMO. Quel est approximativement son niveau sigma (avec le décalage conventionnel de 1,5 σ) ?",
+    o: ["6 sigma", "4,5 sigma", "4 sigma", "3 sigma"],
+    a: 3,
+    e: "Table de conversion standard : 3σ ≈ 66 807 DPMO ; 4σ ≈ 6 210 ; 5σ ≈ 233 ; 6σ ≈ 3,4. Ces repères sont à connaître pour l'examen." },
+
+  { phase: "Analyze",
+    q: "Un échantillon de n = 64 pièces donne une moyenne de 50 et un écart-type de 8. Quel est l'intervalle de confiance à 95 % pour la moyenne (utiliser z = 1,96) ?",
+    o: ["[34,32 ; 65,68]", "[48,04 ; 51,96]", "[49,75 ; 50,25]", "[46,08 ; 53,92]"],
+    a: 1,
+    e: "IC = x̄ ± z × s/√n = 50 ± 1,96 × 8/8 = 50 ± 1,96 → [48,04 ; 51,96]. Utiliser s au lieu de s/√n donne le piège A." },
+
+  { phase: "Improve",
+    q: "Dans une régression multiple, un prédicteur X₂ affiche une p-value de 0,42 (α = 0,05). Quelle décision prendre concernant ce terme ?",
+    o: ["Le conserver, car sa p-value est supérieure à α",
+        "Le conserver, car tout prédicteur améliore le R²",
+        "Le transformer en logarithme pour le rendre significatif",
+        "L'envisager pour retrait, car il n'est pas significatif"],
+    a: 3,
+    e: "p = 0,42 > 0,05 : le coefficient de X₂ n'est pas significativement différent de zéro. On simplifie le modèle en le retirant (en vérifiant l'impact sur le R² ajusté)." },
+
+  { phase: "Define",
+    q: "Une ligne d'assemblage dispose de 450 minutes de production par jour. La demande client est de 900 unités par jour. Quel est le takt time ?",
+    o: ["30 secondes", "2 minutes", "0,5 unité par minute", "20 secondes"],
+    a: 0,
+    e: "Takt time = temps disponible / demande client = 450 min / 900 unités = 0,5 min = 30 s par unité. Inverser la formule donne 2 unités/min (pas un temps)." },
+
+  { phase: "Measure",
+    q: "Quelle est la différence fondamentale entre Cpk et Ppk ?",
+    o: ["Cpk ignore le centrage, Ppk en tient compte",
+        "Cpk s'applique aux attributs, Ppk aux mesures continues",
+        "Cpk utilise la variation court terme (intra-sous-groupe), Ppk la variation globale",
+        "Cpk est calculé sur la population, Ppk sur un échantillon"],
+    a: 2,
+    e: "Cpk (capabilité) estime σ à partir de la variation intra-sous-groupe (R̄/d₂) ; Ppk (performance) utilise l'écart-type global de toutes les données. Les deux tiennent compte du centrage." },
+
+  { phase: "Analyze",
+    q: "Une Green Belt compare le temps moyen de cycle (données continues, normales, variances égales) de 4 équipes de production. Quel test utiliser ?",
+    o: ["Test t apparié",
+        "Test de Kruskal-Wallis",
+        "Test du chi-deux",
+        "Test F de comparaison de variances",
+        "ANOVA à un facteur"],
+    a: 4,
+    e: "Comparaison de moyennes de plus de deux groupes avec données normales → ANOVA à un facteur. Kruskal-Wallis est son équivalent non paramétrique ; le chi-deux traite des attributs." },
+
+  { phase: "Control",
+    q: "Un processus est statistiquement sous contrôle (aucun signal sur la carte) mais son Cpk est de 0,7. Quelle est l'action appropriée ?",
+    o: ["Attendre l'apparition d'une cause spéciale pour agir",
+        "Travailler sur la réduction de la variation de cause commune",
+        "Resserrer les limites de contrôle pour détecter les dérives",
+        "Former les opérateurs à réagir plus vite aux points hors limites"],
+    a: 1,
+    e: "Sous contrôle mais non capable : la variation naturelle (cause commune) est trop grande par rapport à la spécification. Il faut améliorer fondamentalement le processus, pas ajuster les limites." },
+
+  { phase: "Measure",
+    q: "Une étude R&R par attributs entre deux inspecteurs donne un coefficient Kappa de 0,55. Comment interpréter ce résultat ?",
+    o: ["Accord excellent, système validé",
+        "Accord parfait entre les inspecteurs",
+        "Accord acceptable pour toute application",
+        "Accord faible, le système de mesure doit être amélioré"],
+    a: 3,
+    e: "Règle usuelle : Kappa ≥ 0,75 = bon accord ; 0,40–0,75 = accord modéré/faible à améliorer ; < 0,40 = inacceptable. À 0,55, le système attribut n'est pas fiable." },
+
+  { phase: "Analyze",
+    q: "Les données de temps de traitement de deux services ne suivent pas une loi normale. Quel test non paramétrique remplace le test t à deux échantillons indépendants ?",
+    o: ["Test de Mann-Whitney",
+        "Test de Kruskal-Wallis",
+        "Test des signes",
+        "Test de Friedman",
+        "Test de Mood pour les médianes"],
+    a: 0,
+    e: "Mann-Whitney (ou Wilcoxon rang-somme) compare deux échantillons indépendants. Kruskal-Wallis et Mood concernent k > 2 groupes ; signes et Friedman traitent des données appariées." },
+
+  { phase: "Measure",
+    q: "Dans une AMDEC processus, un mode de défaillance est évalué : Gravité = 8, Occurrence = 3, Détection = 5. Quel est son RPN (indice de priorité de risque) ?",
+    o: ["16", "40", "120", "24"],
+    a: 2,
+    e: "RPN = G × O × D = 8 × 3 × 5 = 120. C'est un produit, pas une somme (16) ni un produit partiel (40 = 8 × 5 ; 24 = 8 × 3)." },
+
+  { phase: "Improve",
+    q: "L'équation de régression obtenue est Y = 12 + 3,5 X. Que représente le coefficient 3,5 ?",
+    o: ["La valeur de Y lorsque X vaut zéro",
+        "La variation de Y pour une augmentation d'une unité de X",
+        "Le coefficient de corrélation entre X et Y",
+        "L'erreur-type de l'estimation de Y"],
+    a: 1,
+    e: "3,5 est la pente : chaque unité supplémentaire de X augmente Y de 3,5 en moyenne. 12 est l'ordonnée à l'origine (valeur de Y quand X = 0)." },
+
+  { phase: "Define",
+    q: "Dans la classification des coûts de la non-qualité (COPQ), lequel de ces éléments est un coût d'échec externe ?",
+    o: ["Le tri des pièces non conformes en fin de ligne",
+        "L'audit qualité des fournisseurs",
+        "La retouche des produits avant expédition",
+        "Le traitement des retours sous garantie",
+        "La formation des opérateurs au contrôle"],
+    a: 3,
+    e: "Échec externe = défaut découvert après livraison au client (garanties, retours, réclamations). Tri et retouche sont des échecs internes ; audit et formation sont prévention/évaluation." },
+
+  { phase: "Measure",
+    q: "Un processus est normalement distribué avec μ = 100 et σ = 5. La spécification supérieure est USL = 110. Quel pourcentage de pièces dépasse l'USL ?",
+    o: ["2,28 %", "4,56 %", "0,13 %", "15,87 %"],
+    a: 0,
+    e: "z = (110 − 100)/5 = 2. La probabilité au-delà de z = 2 est 2,28 % (queue unilatérale). 4,56 % correspondrait aux deux queues ; 15,87 % à z = 1." },
+
+  { phase: "Analyze",
+    q: "Une Green Belt conclut qu'il existe une différence significative entre deux machines alors qu'en réalité elles sont identiques. Quel risque s'est matérialisé ?",
+    o: ["Risque β, erreur de type II",
+        "Puissance insuffisante du test",
+        "Risque α, erreur de type I",
+        "Erreur d'échantillonnage systématique"],
+    a: 2,
+    e: "Rejeter H₀ (pas de différence) alors qu'elle est vraie = erreur de type I, dont la probabilité est α (faux positif). L'erreur de type II (β) consiste à manquer une différence réelle." },
+
+  { phase: "Improve",
+    q: "Après une régression, quel graphique permet de vérifier l'hypothèse de variance constante des résidus (homoscédasticité) ?",
+    o: ["Droite de Henry (probabilité normale) des résidus",
+        "Résidus en fonction des valeurs ajustées",
+        "Histogramme des résidus",
+        "Résidus en fonction de l'ordre d'observation"],
+    a: 1,
+    e: "Résidus vs valeurs ajustées : une dispersion en « entonnoir » signale une variance non constante. La droite de Henry teste la normalité ; résidus vs ordre teste l'indépendance." }
+];
+
+const LETTERS = ["A", "B", "C", "D", "E"];
+const PHASES = ["Define", "Measure", "Analyze", "Improve", "Control"];
+const PASS = 0.77;
+
+let current = 0, score = 0, answers = [];
+
+const $ = id => document.getElementById(id);
+
+function render() {
+  const q = QUESTIONS[current];
+  $("progress").style.width = (current / QUESTIONS.length * 100) + "%";
+  $("qnum").textContent = `Question ${current + 1} / ${QUESTIONS.length}`;
+  $("phase").textContent = q.phase.toUpperCase();
+  $("phase").className = "badge " + q.phase;
+  $("question").textContent = q.q;
+  $("options").innerHTML = "";
+  q.o.forEach((txt, i) => {
+    const b = document.createElement("button");
+    b.className = "option";
+    b.innerHTML = `<span class="letter">${LETTERS[i]}</span><span>${txt}</span>`;
+    b.onclick = () => answer(i);
+    $("options").appendChild(b);
+  });
+  $("feedback").className = "feedback";
+  $("feedback").innerHTML = "";
+  $("next").disabled = true;
+  $("next").textContent = current === QUESTIONS.length - 1 ? "Voir le résultat →" : "Question suivante →";
+}
+
+function answer(i) {
+  const q = QUESTIONS[current];
+  const ok = i === q.a;
+  if (ok) score++;
+  answers.push({ idx: current, given: i, ok });
+  document.querySelectorAll(".option").forEach((b, j) => {
+    b.disabled = true;
+    if (j === q.a) b.classList.add("correct");
+    else if (j === i) b.classList.add("wrong");
+  });
+  const fb = $("feedback");
+  fb.className = "feedback show " + (ok ? "ok" : "ko");
+  fb.innerHTML = `<strong>${ok ? "✔ Correct" : "✘ Incorrect — bonne réponse : " + LETTERS[q.a]}</strong>${q.e}`;
+  $("score").textContent = `Score : ${score} / ${current + 1}`;
+  $("next").disabled = false;
+}
+
+$("next").onclick = () => {
+  current++;
+  if (current < QUESTIONS.length) render(); else showResults();
+};
+
+function showResults() {
+  $("quiz").classList.add("hidden");
+  $("results").classList.remove("hidden");
+  const pct = score / QUESTIONS.length;
+  const passed = pct >= PASS;
+  $("result-big").textContent = `${score} / ${QUESTIONS.length}`;
+  $("result-big").className = "result-big " + (passed ? "pass" : "fail");
+  $("result-sub").textContent = `${(pct * 100).toFixed(1)} % — équivalent ≈ ${Math.round(pct * 750)} / 750 points`;
+  $("verdict").innerHTML = passed
+    ? `<span class="pass">Seuil IASSC de 77 % (580/750) atteint — RÉUSSITE</span>`
+    : `<span class="fail">Seuil IASSC de 77 % (580/750) non atteint — ÉCHEC</span>`;
+
+  const colors = { Define: "var(--define)", Measure: "var(--measure)", Analyze: "var(--analyze)", Improve: "var(--improve)", Control: "var(--control)" };
+  $("phase-table").innerHTML = PHASES.map(p => {
+    const qs = answers.filter(a => QUESTIONS[a.idx].phase === p);
+    const good = qs.filter(a => a.ok).length;
+    const ratio = qs.length ? good / qs.length : 0;
+    return `<tr>
+      <td><span class="badge ${p}">${p}</span></td>
+      <td>${good} / ${qs.length}</td>
+      <td>${(ratio * 100).toFixed(0)} %<div class="bar"><span style="width:${ratio * 100}%;background:${colors[p]}"></span></div></td>
+    </tr>`;
+  }).join("");
+
+  const errs = answers.filter(a => !a.ok);
+  $("errors").innerHTML = errs.length
+    ? errs.map(a => {
+        const q = QUESTIONS[a.idx];
+        return `<div class="error-item">
+          <div class="q">Q${a.idx + 1} <span class="badge ${q.phase}">${q.phase}</span> — ${q.q}</div>
+          <div class="a">Votre réponse : <b class="bad">${LETTERS[a.given]}</b> — ${q.o[a.given]}<br>
+          Bonne réponse : <b class="good">${LETTERS[q.a]}</b> — ${q.o[q.a]}<br><em>${q.e}</em></div>
+        </div>`;
+      }).join("")
+    : `<p class="center">Aucune erreur — score parfait.</p>`;
+}
+
+$("restart").onclick = () => {
+  current = 0; score = 0; answers = [];
+  $("results").classList.add("hidden");
+  $("quiz").classList.remove("hidden");
+  $("score").textContent = "Score : 0 / 0";
+  render();
+};
+
+render();
+</script>
+</body>
+</html>
