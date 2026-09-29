@@ -1,0 +1,28 @@
+// Scénarios pour l'entraînement flash « quelle carte de contrôle ? »
+const FLASHCARDS = [
+  { s: "Diamètre d'un axe mesuré sur 5 pièces consécutives toutes les heures.", c: "X̄-R", why: "Continue, sous-groupe de 2 à 9 → moyenne + étendue." },
+  { s: "Viscosité d'un lot de peinture : une seule mesure par lot, un lot par jour.", c: "I-MR", why: "Continue, n = 1 (mesure coûteuse / lot) → valeurs individuelles + étendue mobile." },
+  { s: "Poids de sachets : 20 sachets prélevés toutes les 30 minutes.", c: "X̄-S", why: "Continue, n ≥ 10 → l'écart-type S remplace l'étendue R." },
+  { s: "Chaque jour, 150 dossiers (toujours 150) sont audités ; on compte les dossiers comportant au moins une erreur.", c: "np", why: "Défectueux (oui/non par dossier), taille d'échantillon constante → nombre de défectueux." },
+  { s: "Chaque semaine, on calcule le pourcentage de livraisons en retard sur un volume de livraisons variable.", c: "p", why: "Défectueux, taille d'échantillon variable → proportion." },
+  { s: "Nombre de bulles sur des pare-brise de même taille, un pare-brise inspecté par heure.", c: "c", why: "Défauts (plusieurs possibles), aire d'opportunité constante → nombre de défauts." },
+  { s: "Nombre de défauts de tissage sur des rouleaux de longueur différente.", c: "u", why: "Défauts, aire d'opportunité variable → défauts par unité (mètre)." },
+  { s: "Temps de réponse d'un serveur relevé une fois par minute.", c: "I-MR", why: "Continue, mesures individuelles (n = 1)." },
+  { s: "Nombre d'erreurs par facture, chaque facture ayant le même nombre de lignes.", c: "c", why: "Comptage de défauts sur une unité constante." },
+  { s: "Proportion de pièces rebutées par équipe, la production journalière variant de 800 à 1 200 pièces.", c: "p", why: "Défectueux avec n variable → carte p (limites en escalier)." },
+  { s: "Épaisseur de revêtement : 3 mesures sur 3 pièces à chaque prélèvement.", c: "X̄-R", why: "Continue, n = 3 → X̄-R." },
+  { s: "Nombre de plaintes clients par mois, l'activité étant stable d'un mois à l'autre.", c: "c", why: "Comptage d'événements (Poisson) sur une période constante." },
+  { s: "Nombre de plaintes par 1 000 commandes, le nombre de commandes variant chaque mois.", c: "u", why: "Défauts rapportés à une aire d'opportunité variable." },
+  { s: "Chaque lot de 50 cartes électroniques est testé : on note combien sont rejetées.", c: "np", why: "Défectueux, n constant = 50." },
+  { s: "Résistance à la traction : 12 éprouvettes par coulée.", c: "X̄-S", why: "Continue, n = 12 ≥ 10." },
+  { s: "Coût mensuel des heures supplémentaires d'un service.", c: "I-MR", why: "Donnée continue avec une seule valeur par période." },
+  { s: "Nombre de rayures par m² sur des plaques de surfaces différentes.", c: "u", why: "Défauts par unité de surface variable." },
+  { s: "Taux d'absentéisme hebdomadaire d'un effectif qui fluctue.", c: "p", why: "Proportion (présent/absent), n variable." },
+  { s: "Nombre de pièces non conformes dans un échantillon fixe de 200 pièces par équipe.", c: "np", why: "Défectueux, échantillon de taille constante." },
+  { s: "Température d'un four relevée par sous-groupes de 4 lectures.", c: "X̄-R", why: "Continue, n = 4." },
+  { s: "Nombre de fautes de frappe par page dans un document (pages de même format).", c: "c", why: "Défauts sur unité d'inspection constante." },
+  { s: "Délai de traitement d'un dossier, un dossier tiré au hasard chaque jour.", c: "I-MR", why: "Continue, n = 1." },
+  { s: "Des pièces consécutives sont mesurées par groupes de 8.", c: "X̄-R", why: "Continue, 2 ≤ n ≤ 9." },
+  { s: "Nombre de retouches par véhicule en sortie de ligne, chaque véhicule ayant le même nombre de points de contrôle.", c: "c", why: "Plusieurs défauts possibles par unité, aire constante." },
+  { s: "Sur des lots d'inspection de taille variable, on compte les colis endommagés (endommagé oui/non).", c: "p", why: "Défectueux, n variable." }
+];
