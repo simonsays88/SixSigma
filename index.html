@@ -96,7 +96,6 @@
   .tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
   .tab { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 8px 18px; font-size: .95rem; cursor: pointer; }
   .tab.active { background: var(--accent); color: #0f172a; border-color: var(--accent); font-weight: 600; }
-  .test-chart { display: block; max-width: 100%; max-height: 480px; margin: 0 auto 16px; object-fit: contain; }
 
   /* Mémo cartes de contrôle */
   .tree { font-size: .9rem; }
@@ -133,7 +132,7 @@
 <body>
 <div class="container">
   <header>
-    <h1>Examen blanc IASSC ICGB™ — Lean Six Sigma Green Belt</h1>
+    <h1>Examen test</h1>
     <p id="subtitle">30 questions tirées au hasard parmi 300 · Define 5 · Measure 11 · Analyze 7 · Improve 4 · Control 3 · Seuil : 77 %</p>
   </header>
 
@@ -191,7 +190,6 @@
         <span id="test-source"></span>
       </div>
       <div id="test-question" class="question"></div>
-      <img id="test-chart" class="test-chart hidden" alt="Diagramme de Pareto des erreurs de facturation">
       <p id="test-note" class="note hidden"></p>
       <div id="test-options" class="options"></div>
       <div id="test-feedback" class="feedback" aria-live="polite"></div>
@@ -476,8 +474,6 @@ function renderTest() {
   $("test-qnum").textContent = `Question ${testCurrent + 1} / ${EXAM_TEST_QUESTIONS.length}`;
   $("test-source").textContent = `N° ${question.n} sur la capture`;
   $("test-question").textContent = question.q;
-  $("test-chart").classList.toggle("hidden", !question.image);
-  if (question.image) $("test-chart").src = encodeURI(question.image);
   $("test-note").textContent = question.note || "";
   $("test-note").classList.toggle("hidden", !question.note);
   $("test-options").replaceChildren();
