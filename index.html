@@ -125,6 +125,10 @@
   .flash-face.back { display: flex; flex-direction: column; align-items: center; }
   .flash-face.back.hidden, .flash-face.hidden { display: none; }
   .flash-face.back div { color: var(--muted); font-size: .95rem; }
+  .flash-modes { display: inline-flex; max-width: 100%; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; margin: 8px 0 16px; }
+  .flash-mode { border: 0; border-radius: 5px; background: transparent; color: var(--muted); padding: 8px 12px; cursor: pointer; font-size: .95rem; }
+  .flash-mode.active { background: var(--accent); color: var(--bg); font-weight: 600; }
+  .flash-answer { display: block; font-weight: 700; font-size: 1.15rem; color: var(--improve); margin-bottom: 10px; }
   button.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px 18px; font-size: 1rem; cursor: pointer; margin-right: 8px; }
   button.ghost:disabled { opacity: .4; cursor: default; }
 </style>
@@ -310,9 +314,28 @@
     </div>
 
     <div class="card">
-      <h2>5. Entraînement flash — cliquez pour retourner la carte</h2>
-      <p class="note">Un scénario s'affiche : devinez la carte, puis cliquez pour vérifier. Les scénarios sont tirés au hasard.</p>
-      <div id="flash" class="flash">
+      <h2>5. Tests d'hypothèse — moyens mnémotechniques</h2>
+      <ul class="mnemo">
+        <li><b>« X continu, Y continu : lien ; X en groupes, Y continu : différence »</b> — deux mesures continues : corrélation ou régression ; un facteur catégoriel et une mesure continue : comparer les groupes. Si Y est discret (oui/non), comparer des proportions.</li>
+        <li><b>« 1 cible, 2 duel, 3+ tournoi »</b> — une moyenne contre une cible : t à 1 échantillon ; deux groupes indépendants : t à 2 échantillons ; trois groupes indépendants ou plus : ANOVA (si les conditions paramétriques sont remplies).</li>
+        <li><b>« Même sujet = même paire »</b> — avant/après sur les mêmes individus : t apparié si les différences sont approximativement normales ; sinon Wilcoxon apparié. Trois mesures liées ou plus non normales : Friedman.</li>
+        <li><b>« Signe sans rang, Wilcoxon avec rang »</b> — un échantillon non normal face à une cible : test du signe ; si les écarts à la cible sont symétriques, Wilcoxon à 1 échantillon exploite aussi leurs rangs.</li>
+        <li><b>« M-W à deux, K-W à plusieurs »</b> — deux groupes indépendants non normaux : Mann-Whitney ; trois ou plus : Kruskal-Wallis. Pour comparer directement les médianes de plusieurs groupes, penser au test de Mood.</li>
+        <li><b>« P = proportion, χ² = catégories »</b> — une ou deux proportions : test de proportion ; plusieurs proportions ou deux variables catégorielles : Khi-deux d'indépendance. Dans un tableau 2 × 2 à petits effectifs, penser au test exact de Fisher.</li>
+        <li><b>« Variance : un χ², deux F »</b> — pour une variance comparée à une cible : Khi-deux à 1 variance ; pour deux variances indépendantes : test F. Ces tests classiques exigent la normalité.</li>
+        <li><b>« Bartlett normal, Levene robuste »</b> — pour comparer la dispersion de plusieurs groupes : Bartlett si les données sont normales ; Levene si la normalité n'est pas acquise.</li>
+        <li><b>« α = fausse alarme, β = effet raté »</b> — type I : rejeter H0 vraie ; type II : ne pas rejeter H0 fausse ; puissance = 1 − β.</li>
+        <li><b>« p sous α : H0 tombe »</b> — si p ≤ α, rejeter H0 ; sinon ne pas la rejeter. Ne pas rejeter H0 ne prouve pas qu'elle est vraie.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>6. Entraînement flash</h2>
+      <div class="flash-modes" role="group" aria-label="Sujet des cartes flash">
+        <button class="flash-mode active" type="button" data-flash-mode="charts" aria-pressed="true">Cartes de contrôle</button>
+        <button class="flash-mode" type="button" data-flash-mode="hypotheses" aria-pressed="false">Tests d'hypothèse</button>
+      </div>
+      <div id="flash" class="flash" role="button" tabindex="0" aria-label="Révéler la réponse">
         <div id="flash-front" class="flash-face"></div>
         <div id="flash-back" class="flash-face back hidden"></div>
       </div>
@@ -548,20 +571,30 @@ $("test-restart").onclick = () => {
 };
 renderTest();
 
-// ---------- Flashcards cartes de contrôle ----------
-let flashDeck = [], flashIdx = 0, flashGood = 0, flashSeen = 0, flipped = false;
+// ---------- Flashcards ----------
+const flashSessions = {
+  charts: { source: FLASHCARDS, deck: [], index: 0, good: 0, seen: 0 },
+  hypotheses: { source: HYPOTHESIS_FLASHCARDS, deck: [], index: 0, good: 0, seen: 0 }
+};
+let flashMode = "charts", flipped = false;
 
 function nextFlash() {
-  if (flashIdx >= flashDeck.length) { flashDeck = shuffle([...FLASHCARDS]); flashIdx = 0; }
-  const c = flashDeck[flashIdx];
+  const session = flashSessions[flashMode];
+  if (session.index >= session.deck.length) { session.deck = shuffle([...session.source]); session.index = 0; }
+  const c = session.deck[session.index];
   flipped = false;
   $("flash-front").textContent = c.s;
-  $("flash-back").innerHTML = `<span class="chart big">${c.c}</span><div>${c.why}</div>`;
+  const answer = document.createElement("span");
+  answer.className = flashMode === "charts" ? "chart big" : "flash-answer";
+  answer.textContent = c.c;
+  const reason = document.createElement("div");
+  reason.textContent = c.why;
+  $("flash-back").replaceChildren(answer, reason);
   $("flash-front").classList.remove("hidden");
   $("flash-back").classList.add("hidden");
   $("flash-ok").disabled = true;
   $("flash-ko").disabled = true;
-  $("flash-score").textContent = flashSeen ? `Réussite : ${flashGood} / ${flashSeen}` : "Cliquez sur la carte pour révéler la réponse";
+  $("flash-score").textContent = session.seen ? `Réussite : ${session.good} / ${session.seen}` : "Cliquez sur la carte pour révéler la réponse";
 }
 
 $("flash").onclick = () => {
@@ -572,8 +605,28 @@ $("flash").onclick = () => {
   $("flash-ok").disabled = false;
   $("flash-ko").disabled = false;
 };
-$("flash-ok").onclick = () => { flashGood++; flashSeen++; flashIdx++; nextFlash(); };
-$("flash-ko").onclick = () => { flashSeen++; flashIdx++; nextFlash(); };
+$("flash").onkeydown = event => {
+  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); $("flash").click(); }
+};
+$("flash-ok").onclick = () => {
+  const session = flashSessions[flashMode];
+  session.good++; session.seen++; session.index++; nextFlash();
+};
+$("flash-ko").onclick = () => {
+  const session = flashSessions[flashMode];
+  session.seen++; session.index++; nextFlash();
+};
+document.querySelectorAll(".flash-mode").forEach(button => {
+  button.onclick = () => {
+    flashMode = button.dataset.flashMode;
+    document.querySelectorAll(".flash-mode").forEach(mode => {
+      const active = mode === button;
+      mode.classList.toggle("active", active);
+      mode.setAttribute("aria-pressed", String(active));
+    });
+    nextFlash();
+  };
+});
 
 nextFlash();
 startExam();

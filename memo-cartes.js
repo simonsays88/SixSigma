@@ -26,3 +26,29 @@ const FLASHCARDS = [
   { s: "Nombre de retouches par véhicule en sortie de ligne, chaque véhicule ayant le même nombre de points de contrôle.", c: "c", why: "Plusieurs défauts possibles par unité, aire constante." },
   { s: "Sur des lots d'inspection de taille variable, on compte les colis endommagés (endommagé oui/non).", c: "p", why: "Défectueux, n variable." }
 ];
+
+const HYPOTHESIS_FLASHCARDS = [
+  { s: "Chercher si la température de cuisson (X continu) est liée à la résistance du produit (Y continu).", c: "Corrélation / régression", why: "Deux variables continues : mesurer leur association ou modéliser Y en fonction de X." },
+  { s: "Comparer la moyenne d'un seul échantillon normalement distribué à une valeur cible, écart-type de la population inconnu.", c: "t à 1 échantillon", why: "Une moyenne contre une référence ; l'écart-type est estimé avec l'échantillon." },
+  { s: "Comparer les temps moyens de traitement de deux équipes indépendantes, avec des données approximativement normales.", c: "t à 2 échantillons", why: "Deux groupes indépendants, réponse continue et normalité plausible." },
+  { s: "Mesurer le délai des mêmes dossiers avant et après un changement ; les différences suivent approximativement une loi normale.", c: "t apparié", why: "Ce sont les différences avant/après de chaque dossier qui sont testées." },
+  { s: "Comparer la médiane d'un échantillon à une cible lorsque les données ne sont pas normales mais les écarts sont symétriques.", c: "Wilcoxon à 1 échantillon", why: "Un groupe, données non normales ; le test des rangs signés suppose la symétrie des écarts." },
+  { s: "Vérifier si un échantillon non normal dépasse une valeur cible, sans hypothèse de symétrie des écarts.", c: "Test du signe à 1 échantillon", why: "On compte les observations au-dessus et au-dessous de la cible sans utiliser la taille des écarts." },
+  { s: "Comparer des mesures avant/après sur les mêmes patients ; les différences ne sont pas normalement distribuées.", c: "Wilcoxon apparié", why: "Deux mesures liées et différences non normales : rangs signés des différences." },
+  { s: "Comparer les délais de deux fournisseurs indépendants dont les mesures ne sont pas normales.", c: "Mann-Whitney", why: "Deux groupes indépendants non normaux ; sous des formes de distribution comparables, on peut interpréter un écart de position." },
+  { s: "Comparer les moyennes de quatre lignes de production indépendantes, avec résidus approximativement normaux.", c: "ANOVA à 1 facteur", why: "Plus de deux groupes indépendants ; comparer leurs moyennes en une analyse." },
+  { s: "Comparer trois groupes indépendants de délais non normaux.", c: "Kruskal-Wallis", why: "Alternative par rangs à l'ANOVA pour plusieurs groupes indépendants." },
+  { s: "Comparer directement les médianes de trois groupes indépendants de mesures non normales.", c: "Test des médianes de Mood", why: "Le test de Mood compare les médianes de plusieurs groupes indépendants." },
+  { s: "Chaque patient reçoit trois doses et son temps de réaction est mesuré pour chacune ; les données ne sont pas normales.", c: "Friedman", why: "Trois conditions liées : chaque patient est un bloc, avec plusieurs mesures appariées." },
+  { s: "Vérifier si la dispersion des diamètres d'un échantillon normal atteint une variance cible.", c: "Khi-deux à 1 variance", why: "Une seule variance comparée à une cible ; ce test suppose la normalité." },
+  { s: "Comparer les variances de deux processus indépendants dont les mesures sont normales.", c: "F à 2 variances", why: "Rapport de deux variances sur des échantillons indépendants normaux." },
+  { s: "Comparer la variabilité de quatre lignes indépendantes avec des mesures normalement distribuées.", c: "Test de Bartlett", why: "Plusieurs variances à comparer sous hypothèse de normalité." },
+  { s: "Comparer la variabilité de quatre lignes indépendantes sans supposer la normalité des mesures.", c: "Test de Levene", why: "Levene compare les dispersions de plusieurs groupes et est moins sensible aux écarts à la normalité." },
+  { s: "Vérifier si le taux de défauts d'une seule ligne diffère de la cible de 5 %.", c: "Test à 1 proportion", why: "Une variable binaire, un seul échantillon et une proportion de référence." },
+  { s: "Comparer le pourcentage de colis défectueux de deux fournisseurs indépendants.", c: "Test à 2 proportions", why: "Deux résultats binaires indépendants, exprimés en proportions." },
+  { s: "Comparer les taux de défaut de quatre fournisseurs indépendants.", c: "Khi-deux sur tableau de contingence", why: "Plus de deux proportions : comparer les effectifs des catégories fournisseur × défaut, si les effectifs attendus sont suffisants." },
+  { s: "Vérifier l'association entre le type de défaut et le fournisseur dans un tableau de contingence avec effectifs attendus suffisants.", c: "Khi-deux d'indépendance", why: "Deux variables catégorielles ; H0 suppose leur indépendance." },
+  { s: "Comparer deux proportions dans un tableau 2 × 2 dont plusieurs effectifs attendus sont faibles.", c: "Test exact de Fisher", why: "Test d'association exact adapté aux petits effectifs dans un tableau 2 × 2." },
+  { s: "Un test donne p = 0,12 avec un seuil alpha de 5 %. Quelle décision prendre ?", c: "Ne pas rejeter H0", why: "p > alpha : les données ne suffisent pas à rejeter H0 ; cela ne prouve pas qu'elle est vraie." },
+  { s: "On rejette une hypothèse nulle alors qu'elle est vraie. Quel risque s'est réalisé ?", c: "Erreur de type I (α)", why: "Alpha est le risque de fausse alarme ; bêta est le risque de manquer un effet réel." }
+];
