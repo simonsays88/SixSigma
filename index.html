@@ -93,9 +93,10 @@
   .center { text-align: center; }
 
   /* Onglets */
-  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+  .tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
   .tab { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 8px 18px; font-size: .95rem; cursor: pointer; }
   .tab.active { background: var(--accent); color: #0f172a; border-color: var(--accent); font-weight: 600; }
+  .test-chart { display: block; max-width: 100%; max-height: 480px; margin: 0 auto 16px; object-fit: contain; }
 
   /* Mémo cartes de contrôle */
   .tree { font-size: .9rem; }
@@ -138,6 +139,7 @@
 
   <nav class="tabs">
     <button class="tab active" data-view="exam">Examen blanc</button>
+    <button class="tab" data-view="test">Exam test</button>
     <button class="tab" data-view="memo">Mémo cartes de contrôle</button>
   </nav>
 
@@ -179,6 +181,34 @@
       <button id="restart" class="primary">Nouveau tirage de 30 questions</button>
     </div>
   </div>
+  </div>
+
+  <div id="view-test" class="hidden">
+    <div id="test-quiz" class="card">
+      <div class="progress-wrap"><div id="test-progress" class="progress-bar"></div></div>
+      <div class="meta">
+        <span id="test-qnum"></span>
+        <span id="test-source"></span>
+      </div>
+      <div id="test-question" class="question"></div>
+      <img id="test-chart" class="test-chart hidden" alt="Diagramme de Pareto des erreurs de facturation">
+      <p id="test-note" class="note hidden"></p>
+      <div id="test-options" class="options"></div>
+      <div id="test-feedback" class="feedback" aria-live="polite"></div>
+      <div class="actions">
+        <span id="test-score" class="score">Score : 0 / 0</span>
+        <button id="test-next" class="primary" disabled>Question suivante →</button>
+      </div>
+    </div>
+    <div id="test-results" class="hidden">
+      <div class="card center">
+        <h2>Résultat Exam test</h2>
+        <div id="test-result-big" class="result-big"></div>
+        <div id="test-result-sub" class="result-sub"></div>
+      </div>
+      <div class="card"><h2>Erreurs et bonnes réponses</h2><div id="test-errors"></div></div>
+      <div class="center"><button id="test-restart" class="primary">Recommencer</button></div>
+    </div>
   </div>
 
   <div id="view-memo" class="hidden">
@@ -305,6 +335,7 @@
 <script src="questions/analyze.js"></script>
 <script src="questions/improve.js"></script>
 <script src="questions/control.js"></script>
+<script src="questions/exam-test.js"></script>
 <script src="memo-cartes.js"></script>
 <script>
 const BANK = [...DEFINE_QUESTIONS, ...MEASURE_QUESTIONS_1, ...MEASURE_QUESTIONS_2,
@@ -432,9 +463,94 @@ document.querySelectorAll(".tab").forEach(t => {
   t.onclick = () => {
     document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x === t));
     $("view-exam").classList.toggle("hidden", t.dataset.view !== "exam");
+    $("view-test").classList.toggle("hidden", t.dataset.view !== "test");
     $("view-memo").classList.toggle("hidden", t.dataset.view !== "memo");
   };
 });
+
+let testCurrent = 0, testScore = 0, testAnswers = [];
+
+function renderTest() {
+  const question = EXAM_TEST_QUESTIONS[testCurrent];
+  $("test-progress").style.width = `${testCurrent / EXAM_TEST_QUESTIONS.length * 100}%`;
+  $("test-qnum").textContent = `Question ${testCurrent + 1} / ${EXAM_TEST_QUESTIONS.length}`;
+  $("test-source").textContent = `N° ${question.n} sur la capture`;
+  $("test-question").textContent = question.q;
+  $("test-chart").classList.toggle("hidden", !question.image);
+  if (question.image) $("test-chart").src = encodeURI(question.image);
+  $("test-note").textContent = question.note || "";
+  $("test-note").classList.toggle("hidden", !question.note);
+  $("test-options").replaceChildren();
+  question.o.forEach((option, index) => {
+    const button = document.createElement("button");
+    button.className = "option";
+    const letter = document.createElement("span");
+    letter.className = "letter";
+    letter.textContent = LETTERS[index] || String.fromCharCode(65 + index);
+    const text = document.createElement("span");
+    text.textContent = option;
+    button.append(letter, text);
+    button.onclick = () => answerTest(index);
+    $("test-options").appendChild(button);
+  });
+  $("test-feedback").className = "feedback";
+  $("test-feedback").replaceChildren();
+  $("test-next").disabled = true;
+  $("test-next").textContent = testCurrent === EXAM_TEST_QUESTIONS.length - 1 ? "Voir le résultat →" : "Question suivante →";
+}
+
+function answerTest(index) {
+  const question = EXAM_TEST_QUESTIONS[testCurrent];
+  const correct = index === question.a;
+  if (correct) testScore++;
+  testAnswers.push(index);
+  $("test-options").querySelectorAll("button").forEach((button, choice) => {
+    button.disabled = true;
+    if (choice === question.a) button.classList.add("correct");
+    else if (choice === index) button.classList.add("wrong");
+  });
+  const feedback = $("test-feedback");
+  feedback.className = `feedback show ${correct ? "ok" : "ko"}`;
+  const title = document.createElement("strong");
+  title.textContent = correct ? "Correct" : `Incorrect — bonne réponse : ${String.fromCharCode(65 + question.a)}`;
+  feedback.append(title, document.createTextNode(question.e));
+  $("test-score").textContent = `Score : ${testScore} / ${testCurrent + 1}`;
+  $("test-next").disabled = false;
+}
+
+$("test-next").onclick = () => {
+  testCurrent++;
+  if (testCurrent < EXAM_TEST_QUESTIONS.length) { renderTest(); return; }
+  $("test-quiz").classList.add("hidden");
+  $("test-results").classList.remove("hidden");
+  $("test-result-big").textContent = `${testScore} / ${EXAM_TEST_QUESTIONS.length}`;
+  $("test-result-sub").textContent = `${(testScore / EXAM_TEST_QUESTIONS.length * 100).toFixed(1)} %`;
+  const errors = EXAM_TEST_QUESTIONS.filter((question, index) => testAnswers[index] !== question.a);
+  $("test-errors").replaceChildren();
+  if (!errors.length) $("test-errors").textContent = "Aucune erreur — score parfait.";
+  errors.forEach(question => {
+    const item = document.createElement("div");
+    item.className = "error-item";
+    const title = document.createElement("div");
+    title.className = "q";
+    title.textContent = `N° ${question.n} — ${question.q}`;
+    const detail = document.createElement("div");
+    detail.className = "a";
+    const given = testAnswers[EXAM_TEST_QUESTIONS.indexOf(question)];
+    detail.textContent = `Votre réponse : ${question.o[given]} · Bonne réponse : ${question.o[question.a]} · ${question.e}`;
+    item.append(title, detail);
+    $("test-errors").appendChild(item);
+  });
+};
+
+$("test-restart").onclick = () => {
+  testCurrent = 0; testScore = 0; testAnswers = [];
+  $("test-score").textContent = "Score : 0 / 0";
+  $("test-results").classList.add("hidden");
+  $("test-quiz").classList.remove("hidden");
+  renderTest();
+};
+renderTest();
 
 // ---------- Flashcards cartes de contrôle ----------
 let flashDeck = [], flashIdx = 0, flashGood = 0, flashSeen = 0, flipped = false;
